@@ -12,7 +12,7 @@ from __future__ import annotations
 import argparse
 import logging
 
-from .alcs import AlcsDevice, AlcsSession, discover
+from .alcs import AlcsDevice, AlcsSession, discover, discover_all
 
 
 def main() -> None:
@@ -20,6 +20,8 @@ def main() -> None:
     ap.add_argument("--timeout", type=float, default=6.0)
     ap.add_argument("--iface", default="0.0.0.0",
                     help="local LAN adapter IP to send multicast from (multi-NIC hosts)")
+    ap.add_argument("--no-mdns", action="store_true",
+                    help="CoAP multicast only, skip mDNS discovery")
     ap.add_argument("--connect", nargs=3, metavar=("PRODUCTKEY", "DEVICENAME", "SECRET"))
     ap.add_argument("--access-key", default="")
     ap.add_argument("--access-token", default="")
@@ -28,8 +30,11 @@ def main() -> None:
 
     logging.basicConfig(level=logging.DEBUG, format="%(levelname)s %(name)s %(message)s")
 
-    print(f"discovering ALCS devices for {args.timeout}s ...")
-    devices = discover(timeout=args.timeout, iface_ip=args.iface)
+    print(f"discovering ALCS devices for {args.timeout}s (mdns={not args.no_mdns}) ...")
+    if args.no_mdns:
+        devices = discover(timeout=args.timeout, iface_ip=args.iface)
+    else:
+        devices = discover_all(timeout=args.timeout, iface_ip=args.iface)
     if not devices:
         print("no ALCS devices found (mower on this LAN / powered / awake?)")
     for d in devices:

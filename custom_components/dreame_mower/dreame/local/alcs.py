@@ -113,6 +113,101 @@ def discover(timeout: float = 5.0, iface_ip: str = "0.0.0.0") -> list[AlcsDevice
     return list(found.values())
 
 
+def discover_mdns(timeout: float = 5.0) -> list[AlcsDevice]:
+    """Find ALCS devices via mDNS/zeroconf as a second discovery path.
+
+    Enumerates every advertised service type and keeps the ones whose TXT records
+    or names look like Aliyun / ALCS / Dreame-Mova devices (carry productKey /
+    deviceName, or a telling service name). Standard mDNS — works device-free.
+    """
+    try:
+        from zeroconf import ServiceBrowser, ServiceInfo, ServiceListener, Zeroconf
+    except Exception as ex:  # noqa: BLE001
+        _LOG.info("zeroconf unavailable, skipping mDNS discovery: %s", ex)
+        return []
+
+    found: dict[tuple[str, int], AlcsDevice] = {}
+    hints = ("alink", "aliyun", "ica", "cosa", "dreame", "mova")
+
+    def _txt(info: "ServiceInfo") -> dict[str, str]:
+        out: dict[str, str] = {}
+        for k, v in (info.properties or {}).items():
+            try:
+                key = k.decode("utf-8", "replace")
+                out[key] = v.decode("utf-8", "replace") if isinstance(v, bytes) else ""
+            except Exception:  # noqa: BLE001
+                continue
+        return out
+
+    class _Listener(ServiceListener):
+        def _handle(self, zc: "Zeroconf", type_: str, name: str) -> None:
+            try:
+                info = zc.get_service_info(type_, name, timeout=1500)
+            except Exception:  # noqa: BLE001
+                return
+            if info is None:
+                return
+            txt = _txt(info)
+            name_l = name.lower()
+            looks = any(h in name_l for h in hints) or "productKey" in txt or "deviceName" in txt
+            if not looks:
+                return
+            addrs = info.parsed_addresses()
+            ip = addrs[0] if addrs else ""
+            port = info.port or COAP_PORT
+            pk = txt.get("productKey") or txt.get("pk") or ""
+            dn = txt.get("deviceName") or txt.get("dn") or ""
+            if ip:
+                _LOG.info("mDNS candidate %s type=%s ip=%s txt=%s", name, type_, ip, txt)
+                found[(ip, port)] = AlcsDevice(ip, port, pk, dn, dict(txt))
+
+        def add_service(self, zc: "Zeroconf", type_: str, name: str) -> None:
+            self._handle(zc, type_, name)
+
+        def update_service(self, zc: "Zeroconf", type_: str, name: str) -> None:
+            self._handle(zc, type_, name)
+
+        def remove_service(self, zc: "Zeroconf", type_: str, name: str) -> None:
+            pass
+
+    zc = Zeroconf()
+    listener = _Listener()
+    try:
+        # enumerate all advertised service types, then browse each
+        types: list[str] = []
+
+        class _TypeListener(ServiceListener):
+            def add_service(self, z: "Zeroconf", type_: str, name: str) -> None:
+                types.append(name)
+
+            def update_service(self, z: "Zeroconf", type_: str, name: str) -> None:
+                pass
+
+            def remove_service(self, z: "Zeroconf", type_: str, name: str) -> None:
+                pass
+
+        ServiceBrowser(zc, "_services._dns-sd._udp.local.", _TypeListener())
+        time.sleep(min(timeout, 3.0))
+        browsers = [ServiceBrowser(zc, t, listener) for t in list(dict.fromkeys(types))] or [
+            ServiceBrowser(zc, "_alink._tcp.local.", listener)
+        ]
+        time.sleep(timeout)
+        del browsers
+    finally:
+        zc.close()
+    return list(found.values())
+
+
+def discover_all(timeout: float = 6.0, iface_ip: str = "0.0.0.0") -> list[AlcsDevice]:
+    """CoAP multicast + mDNS discovery, de-duplicated by (ip, port)."""
+    merged: dict[tuple[str, int], AlcsDevice] = {}
+    for d in discover(timeout=timeout, iface_ip=iface_ip):
+        merged[(d.ip, d.port)] = d
+    for d in discover_mdns(timeout=timeout):
+        merged.setdefault((d.ip, d.port), d)
+    return list(merged.values())
+
+
 class AlcsSession:
     """Secure session with one ALCS device (experimental — see TODO(device))."""
 

@@ -11,6 +11,6 @@ coordinator yet — this package ships the client + probe so the handshake can b
 confirmed on a mower's LAN, after which a full `lan` connection mode is wired in.
 """
 
-from .alcs import AlcsDevice, AlcsSession, discover
+from .alcs import AlcsDevice, AlcsSession, discover, discover_all, discover_mdns
 
-__all__ = ["AlcsDevice", "AlcsSession", "discover"]
+__all__ = ["AlcsDevice", "AlcsSession", "discover", "discover_all", "discover_mdns"]
