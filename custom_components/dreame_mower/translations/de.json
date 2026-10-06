@@ -13,6 +13,7 @@
           "username": "Benutzername",
           "password": "Passwort",
           "country": "Cloudserver",
+          "mode": "Verbindungsmodus (cloud, oder lan – experimentell)",
           "local_url": "Lokale Server-URL (optional, z. B. https://192.168.1.10:13267 – leer lassen für Cloud)"
         },
         "description": "Melden Sie sich in der Dreamehome Cloud an."
@@ -22,6 +23,7 @@
           "username": "Benutzername",
           "password": "Passwort",
           "country": "Serverland",
+          "mode": "Verbindungsmodus (cloud, oder lan – experimentell)",
           "local_url": "Lokale Server-URL (optional, z. B. https://192.168.1.10:13267 – leer lassen für Cloud)"
         },
         "description": "Melden Sie sich in der Movahome Cloud an."
@@ -46,7 +48,8 @@
       "credentials_incomplete": "Benutzername, Passwort und Land sind erforderlich.",
       "login_error": "Anmeldung fehlgeschlagen. Überprüfen Sie Benutzername und Passwort. Stellen Sie sicher, dass Sie den richtigen Kontotyp ausgewählt haben (Dreamehome vs. MOVAhome).",
       "no_devices": "Kein unterstützter Mäher in diesem Konto gefunden. Stellen Sie sicher, dass Sie den richtigen Kontotyp gewählt haben – MOVAhome für MOVA-Geräte, Dreamehome für Dreame – und dass das Gerät in der entsprechenden App hinzugefügt ist. Sie können auch ein anderes Serverland ausprobieren.",
-      "invalid_account_type": "Ungültiger Kontotyp ausgewählt."
+      "invalid_account_type": "Ungültiger Kontotyp ausgewählt.",
+      "lan_experimental": "Der LAN-Modus (CoAP) ist experimentell und noch nicht für die Einrichtung nutzbar – bitte 'cloud' wählen. Der ALCS-Client liegt unter dreame/local/ und muss erst am Gerät verifiziert werden."
     },
     "abort": {
       "cannot_connect": "Fehlgeschlagene Verbindung.",

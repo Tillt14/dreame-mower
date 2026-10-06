@@ -13,6 +13,7 @@
           "username": "Username",
           "password": "Password",
           "country": "Server country",
+          "mode": "Connection mode (cloud, or lan — experimental)",
           "local_url": "Local server URL (optional, e.g. https://192.168.1.10:13267 — leave empty for cloud)"
         },
         "description": "Log in to the Dreamehome cloud."
@@ -22,6 +23,7 @@
           "username": "Username",
           "password": "Password",
           "country": "Server country",
+          "mode": "Connection mode (cloud, or lan — experimental)",
           "local_url": "Local server URL (optional, e.g. https://192.168.1.10:13267 — leave empty for cloud)"
         },
         "description": "Log in to the MOVAhome cloud."
@@ -46,7 +48,8 @@
       "credentials_incomplete": "Username, password and country are all required.",
       "login_error": "Login failed. Check your username and password. Make sure you selected the correct account type (Dreamehome vs MOVAhome).",
       "no_devices": "No supported mower found in this account. Make sure you picked the right account type — MOVAhome for MOVA devices, Dreamehome for Dreame — and that the device is added to that app. You can also try a different server country.",
-      "invalid_account_type": "Invalid account type selected."
+      "invalid_account_type": "Invalid account type selected.",
+      "lan_experimental": "LAN (CoAP) mode is experimental and not usable for setup yet — select 'cloud'. The ALCS client ships under dreame/local/ and needs on-device verification first."
     },
     "abort": {
       "cannot_connect": "Failed to connect.",

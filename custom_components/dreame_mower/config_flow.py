@@ -32,6 +32,7 @@ CONF_DID = "did"
 CONF_ACCOUNT_TYPE = "account_type"
 CONF_DEVICE_TYPE = "device_type"
 CONF_LOCAL_URL = "local_url"
+CONF_MODE = "mode"  # "cloud" (default) | "lan" (experimental, ALCS CoAP)
 
 DEVICE_TYPE_MOWER = "mower"
 DEVICE_TYPE_SWBOT = "swbot"
@@ -168,6 +169,14 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors = {}
             
         if user_input is not None:
+            # LAN (ALCS CoAP) mode is not wired into the device layer yet — the
+            # client ships under dreame/local/ but needs on-device verification.
+            if user_input.get(CONF_MODE) == "lan":
+                return self.async_show_form(
+                    step_id=account_type,
+                    data_schema=self._account_schema(),
+                    errors={"base": "lan_experimental"},
+                )
             self.account_type = account_type
             username = user_input.get(CONF_USERNAME)
             password = user_input.get(CONF_PASSWORD)
@@ -244,17 +253,22 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id=account_type,
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_USERNAME, default=self.username or ""): str,
-                    vol.Required(CONF_PASSWORD, default=self.password or ""): str,
-                    vol.Required(CONF_COUNTRY, default=self.country or "eu"): vol.In(
-                        ["cn", "eu", "us", "ru", "sg"]
-                    ),
-                    vol.Optional(CONF_LOCAL_URL, default=self.local_url or ""): str,
-                }
-            ),
+            data_schema=self._account_schema(),
             errors=errors,
+        )
+
+    def _account_schema(self) -> vol.Schema:
+        """Schema for the dreame/mova account step (shared by normal + error paths)."""
+        return vol.Schema(
+            {
+                vol.Required(CONF_USERNAME, default=self.username or ""): str,
+                vol.Required(CONF_PASSWORD, default=self.password or ""): str,
+                vol.Required(CONF_COUNTRY, default=self.country or "eu"): vol.In(
+                    ["cn", "eu", "us", "ru", "sg"]
+                ),
+                vol.Optional(CONF_MODE, default="cloud"): vol.In(["cloud", "lan"]),
+                vol.Optional(CONF_LOCAL_URL, default=self.local_url or ""): str,
+            }
         )
 
     async def async_step_devices(
