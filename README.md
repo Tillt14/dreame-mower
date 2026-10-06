@@ -35,6 +35,19 @@ Provided "as-is" under the MIT License for personal, non-commercial use with dev
 
 *Have suggestions? Check out [Discussions](https://github.com/antondaubert/dreame-mower/discussions)*
 
+## Local server mode (experimental, fork addition)
+
+During setup there is an optional **Local server URL** field. Leave it empty for
+normal cloud operation (unchanged default). If you run a local server that
+emulates the Dreame cloud on your network, set it to that server's base URL
+(e.g. `https://192.168.1.10:13267`, or just `192.168.1.10:13267` — the scheme
+defaults to https). All REST calls then go to that server instead of
+`*.iot.dreame.tech`, and TLS verification is relaxed for its self-signed
+certificate. The mower's MQTT host is taken from what the local server returns.
+
+This only helps if the mower itself has been redirected to that server (DNS); it
+is a building block for fully-offline operation and is not needed for normal use.
+
 ## UI Elements
 
 The current release exposes map, zone, and edge selection as select entities in Home Assistant. Selecting **multiple zones or areas** at once is not yet available in the UI — use the service actions below for that.

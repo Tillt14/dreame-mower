@@ -90,7 +90,7 @@ class DreameMowerCloudBase:
         self._username = username
         self._password = password
         self._country = country
-        self._local_url = local_url.rstrip("/") if local_url else None
+        self._local_url = self._normalize_local_url(local_url)
         self._location: str = country
         self._session = requests.session()
         if self._local_url:
@@ -110,6 +110,22 @@ class DreameMowerCloudBase:
         self._queue: queue.Queue = queue.Queue()
         self._thread: Optional[Thread] = None
         self._id = random.randint(1, 100)
+
+    @staticmethod
+    def _normalize_local_url(local_url: Optional[str]) -> Optional[str]:
+        """Normalize a user-entered local server URL.
+
+        Accepts bare ``host[:port]`` as well as full URLs; defaults the scheme to
+        https and strips a trailing slash. Returns None for empty input (cloud).
+        """
+        if not local_url:
+            return None
+        url = local_url.strip()
+        if not url:
+            return None
+        if "://" not in url:
+            url = "https://" + url
+        return url.rstrip("/")
 
     def get_api_url(self) -> str:
         """Get the base API URL for the configured country (or the local server)."""
