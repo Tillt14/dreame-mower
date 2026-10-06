@@ -12,7 +12,8 @@
         "data": {
           "username": "Benutzername",
           "password": "Passwort",
-          "country": "Cloudserver"
+          "country": "Cloudserver",
+          "local_url": "Lokale Server-URL (optional, z. B. https://192.168.1.10:13267 – leer lassen für Cloud)"
         },
         "description": "Melden Sie sich in der Dreamehome Cloud an."
       },
@@ -20,7 +21,8 @@
         "data": {
           "username": "Benutzername",
           "password": "Passwort",
-          "country": "Serverland"
+          "country": "Serverland",
+          "local_url": "Lokale Server-URL (optional, z. B. https://192.168.1.10:13267 – leer lassen für Cloud)"
         },
         "description": "Melden Sie sich in der Movahome Cloud an."
       },

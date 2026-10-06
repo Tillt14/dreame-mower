@@ -17,7 +17,7 @@ from enum import Enum
 import json
 import logging
 import os
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from datetime import datetime
 
 from .cloud.cloud_device import DreameMowerCloudDevice
@@ -264,9 +264,10 @@ class DreameMowerDevice:
         account_type: str,
         country: str,
         hass_config_dir: str,
+        local_url: Optional[str] = None,
     ) -> None:
         """Initialize the device handler.
-        
+
         Args:
             device_id: Unique device identifier
             username: Username for device authentication
@@ -274,6 +275,8 @@ class DreameMowerDevice:
             account_type: Account type for cloud authentication
             country: Country for cloud authentication
             hass_config_dir: The path to the Home Assistant configuration directory.
+            local_url: Optional base URL of a local server emulating the Dreame
+                cloud. Forwarded to the cloud client; see DreameMowerCloudBase.
         """
         self._device_id = device_id
         self._username = username
@@ -289,6 +292,7 @@ class DreameMowerDevice:
             country=country,
             account_type=account_type,
             device_id=device_id,
+            local_url=local_url,
         )
         
         # Pullable properties

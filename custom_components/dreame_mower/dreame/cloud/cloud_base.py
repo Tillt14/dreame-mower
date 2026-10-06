@@ -65,14 +65,19 @@ class DreameMowerCloudBase:
         password: str,
         country: str,
         account_type: str,
+        local_url: Optional[str] = None,
     ) -> None:
         """Initialize cloud authentication.
-        
+
         Args:
             username: Cloud account username
-            password: Cloud account password  
+            password: Cloud account password
             country: Country code (e.g., 'us', 'eu', 'cn')
             account_type: Account type ('dreame' or 'mova')
+            local_url: Optional base URL of a local server emulating the Dreame
+                cloud (e.g. ``https://192.168.1.10:13267``). When set, all REST
+                calls go there instead of the official cloud and TLS verification
+                is disabled (the local server uses a self-signed certificate).
         """
         # Decode API strings based on account type
         if account_type == "dreame":
@@ -85,8 +90,13 @@ class DreameMowerCloudBase:
         self._username = username
         self._password = password
         self._country = country
+        self._local_url = local_url.rstrip("/") if local_url else None
         self._location: str = country
         self._session = requests.session()
+        if self._local_url:
+            # Local emulator serves a self-signed certificate.
+            self._session.verify = False
+            requests.packages.urllib3.disable_warnings()  # type: ignore[attr-defined]
         self._ti: Optional[str] = None
         self._fail_count = 0
         self.__http_api_connected = False
@@ -102,7 +112,9 @@ class DreameMowerCloudBase:
         self._id = random.randint(1, 100)
 
     def get_api_url(self) -> str:
-        """Get the base API URL for the configured country."""
+        """Get the base API URL for the configured country (or the local server)."""
+        if self._local_url:
+            return self._local_url
         return f"https://{self._country}{self._api_strings[0]}:{self._api_strings[1]}"
 
     @property

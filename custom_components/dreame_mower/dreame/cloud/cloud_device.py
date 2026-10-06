@@ -28,9 +28,10 @@ class DreameMowerCloudDevice:
         country: str,
         account_type: str,
         device_id: str,
+        local_url: Optional[str] = None,
     ) -> None:
         # Initialize cloud base functionality via composition
-        self._cloud_base = DreameMowerCloudBase(username, password, country, account_type)
+        self._cloud_base = DreameMowerCloudBase(username, password, country, account_type, local_url)
         
         # Device-specific fields
         self._device_id = device_id

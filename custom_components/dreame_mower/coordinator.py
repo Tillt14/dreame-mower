@@ -17,13 +17,14 @@ from homeassistant.const import CONF_NAME, CONF_PASSWORD, CONF_USERNAME
 
 from .const import DOMAIN, CONF_NOTIFY
 from .config_flow import (
-    CONF_ACCOUNT_TYPE, 
-    CONF_COUNTRY, 
-    CONF_DID, 
-    CONF_MAC, 
-    CONF_MODEL, 
-    CONF_SERIAL, 
+    CONF_ACCOUNT_TYPE,
+    CONF_COUNTRY,
+    CONF_DID,
+    CONF_MAC,
+    CONF_MODEL,
+    CONF_SERIAL,
     CONF_DEVICE_TYPE,
+    CONF_LOCAL_URL,
     DEVICE_TYPE_SWBOT,
     NOTIFICATION_INFORMATION,
     NOTIFICATION_WARNING,
@@ -96,7 +97,8 @@ class DreameMowerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             entry.data[CONF_PASSWORD],
             entry.data[CONF_ACCOUNT_TYPE],
             entry.data[CONF_COUNTRY],
-            hass.config.config_dir)
+            hass.config.config_dir,
+            entry.data.get(CONF_LOCAL_URL) or None)
         self._selected_mowing_mode = MowingMode.ALL_AREA
         self._selected_contour_id: tuple[int, int] | None = None
         self._selected_zone_id: int | None = None

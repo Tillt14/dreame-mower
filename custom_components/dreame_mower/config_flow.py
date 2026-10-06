@@ -31,6 +31,7 @@ CONF_MAC = "mac"
 CONF_DID = "did"
 CONF_ACCOUNT_TYPE = "account_type"
 CONF_DEVICE_TYPE = "device_type"
+CONF_LOCAL_URL = "local_url"
 
 DEVICE_TYPE_MOWER = "mower"
 DEVICE_TYPE_SWBOT = "swbot"
@@ -102,6 +103,7 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.username: str | None = None
         self.password: str | None = None
         self.country: str | None = None
+        self.local_url: str | None = None
         self.devices: dict[str, Any] = {}
         self.device_id: str | None = None
         self.mac: str | None = None
@@ -170,6 +172,7 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             username = user_input.get(CONF_USERNAME)
             password = user_input.get(CONF_PASSWORD)
             country = user_input.get(CONF_COUNTRY)
+            self.local_url = user_input.get(CONF_LOCAL_URL) or None
 
             if username and password and country:
                 self.username = username
@@ -183,6 +186,7 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         password=self.password,
                         country=self.country,
                         account_type=account_type,
+                        local_url=self.local_url,
                     )
                     await self.hass.async_add_executor_job(auth.connect)
 
@@ -247,6 +251,7 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_COUNTRY, default=self.country or "eu"): vol.In(
                         ["cn", "eu", "us", "ru", "sg"]
                     ),
+                    vol.Optional(CONF_LOCAL_URL, default=self.local_url or ""): str,
                 }
             ),
             errors=errors,
@@ -353,6 +358,7 @@ class DreameMowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_SERIAL: self.serial_number,
                     CONF_ACCOUNT_TYPE: self.account_type,
                     CONF_DEVICE_TYPE: _device_type_for_model(self.model),
+                    CONF_LOCAL_URL: self.local_url,
                 },
                 options={
                     CONF_NOTIFY: user_input[CONF_NOTIFY],
